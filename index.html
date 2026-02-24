@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Raum Programm</title>
+</head>
+<body>
+<h2>Programm wird geladen...</h2>
+
+<script>
+async function checkEvent() {
+  const response = await fetch('events.json');
+  const events = await response.json();
+  const now = new Date();
+
+  let found = false;
+
+  for (let event of events) {
+    const start = new Date(event.start);
+    const end = new Date(event.end);
+
+    if (now >= start && now <= end) {
+      window.location.href = event.file;
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    document.body.innerHTML = "<h2>Heute findet keine Veranstaltung statt.</h2>";
+  }
+}
+
+checkEvent();
+</script>
+
+</body>
+</html>
