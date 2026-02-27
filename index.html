@@ -34,28 +34,38 @@
 </head>
 
 <body>
-
 <h2>Programm wird geladen...</h2>
 
 <script>
 async function checkEvent() {
   try {
-    const response = await fetch('events.json');
+    const response = await fetch('./events.json');
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status);
+    }
+
     const events = await response.json();
     const now = new Date();
+
+    console.log("Aktuelle Zeit:", now);
+
     let found = false;
 
     for (let event of events) {
       const start = new Date(event.start);
       const end = new Date(event.end);
 
-      if (now >= start && now <= end) {
+      console.log("Prüfe Event:", event.file, "von", start, "bis", end);
+
+      // Millisekunden-Vergleich, um Zeitzonenprobleme zu vermeiden
+      if (now.getTime() >= start.getTime() && now.getTime() <= end.getTime()) {
         found = true;
 
-        // PDF automatisch öffnen (beste Lösung für Handy)
+        // PDF automatisch öffnen
         window.location.href = event.file;
 
-        // Fallback-Anzeige falls automatische Weiterleitung blockiert wird
+        // Fallback-Anzeige, falls automatische Weiterleitung blockiert wird
         document.body.innerHTML = `
           <h2>Aktuelles Programm</h2>
           <p>Falls das PDF nicht automatisch geöffnet wird:</p>
@@ -74,11 +84,12 @@ async function checkEvent() {
 
   } catch (error) {
     document.body.innerHTML =
-      "<h2>Fehler beim Laden der Veranstaltungen.</h2>";
+      "<h2>Fehler beim Laden der Veranstaltungen.</h2><p>" + error.message + "</p>";
     console.error(error);
   }
 }
 
+// Aufruf der Funktion
 checkEvent();
 </script>
 
