@@ -39,47 +39,40 @@
 <script>
 async function checkEvent() {
   try {
+    // Lade die JSON-Datei
     const response = await fetch('./events.json');
-
-    if (!response.ok) {
-      throw new Error("HTTP Fehler: " + response.status);
-    }
+    if (!response.ok) throw new Error("HTTP Fehler: " + response.status);
 
     const events = await response.json();
     const now = new Date();
 
-    console.log("Aktuelle Zeit:", now);
+    console.log("Jetzt:", now); // Debug
 
     let found = false;
 
     for (let event of events) {
+      // Zeitzone in JSON berücksichtigen (+01:00 für MEZ)
       const start = new Date(event.start);
       const end = new Date(event.end);
 
       console.log("Prüfe Event:", event.file, "von", start, "bis", end);
 
-      // Millisekunden-Vergleich, um Zeitzonenprobleme zu vermeiden
+      // Millisekunden-Vergleich für Stabilität
       if (now.getTime() >= start.getTime() && now.getTime() <= end.getTime()) {
         found = true;
 
-        // PDF automatisch öffnen
-        window.location.href = event.file;
-
-        // Fallback-Anzeige, falls automatische Weiterleitung blockiert wird
+        // Anzeige-Button für PDF (funktioniert auf Desktop & Handy)
         document.body.innerHTML = `
           <h2>Aktuelles Programm</h2>
-          <p>Falls das PDF nicht automatisch geöffnet wird:</p>
-          <a class="button" href="${event.file}" target="_blank">
-            📄 PDF hier öffnen
-          </a>
+          <p>PDF für die aktuelle Veranstaltung:</p>
+          <a class="button" href="${event.file}" target="_blank">📄 PDF öffnen</a>
         `;
         break;
       }
     }
 
     if (!found) {
-      document.body.innerHTML =
-        "<h2>Heute findet keine Veranstaltung statt.</h2>";
+      document.body.innerHTML = "<h2>Heute findet keine Veranstaltung statt.</h2>";
     }
 
   } catch (error) {
