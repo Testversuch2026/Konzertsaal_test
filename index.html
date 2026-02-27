@@ -2,32 +2,47 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Raum Programm</title>
+
 <style>
   body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin: 50px;
+    margin: 40px 20px;
   }
+
   h2 {
     color: #333;
   }
-  embed {
-    border: 1px solid #ccc;
+
+  .button {
+    display: inline-block;
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 18px;
+  }
+
+  .button:hover {
+    background-color: #0056b3;
   }
 </style>
 </head>
+
 <body>
+
 <h2>Programm wird geladen...</h2>
 
 <script>
-// Funktion prüft events.json und zeigt das richtige PDF
 async function checkEvent() {
   try {
     const response = await fetch('events.json');
     const events = await response.json();
     const now = new Date();
-
     let found = false;
 
     for (let event of events) {
@@ -35,23 +50,35 @@ async function checkEvent() {
       const end = new Date(event.end);
 
       if (now >= start && now <= end) {
-        // PDF eingebettet anzeigen
-        document.body.innerHTML = '<h2>Aktuelles Programm</h2><embed src="' + event.file + '" width="80%" height="800px" type="application/pdf">';
         found = true;
+
+        // PDF automatisch öffnen (beste Lösung für Handy)
+        window.location.href = event.file;
+
+        // Fallback-Anzeige falls automatische Weiterleitung blockiert wird
+        document.body.innerHTML = `
+          <h2>Aktuelles Programm</h2>
+          <p>Falls das PDF nicht automatisch geöffnet wird:</p>
+          <a class="button" href="${event.file}" target="_blank">
+            📄 PDF hier öffnen
+          </a>
+        `;
         break;
       }
     }
 
     if (!found) {
-      document.body.innerHTML = "<h2>Heute findet keine Veranstaltung statt.</h2>";
+      document.body.innerHTML =
+        "<h2>Heute findet keine Veranstaltung statt.</h2>";
     }
+
   } catch (error) {
-    document.body.innerHTML = "<h2>Fehler beim Laden der Veranstaltungen.</h2>";
+    document.body.innerHTML =
+      "<h2>Fehler beim Laden der Veranstaltungen.</h2>";
     console.error(error);
   }
 }
 
-// Aufruf der Funktion
 checkEvent();
 </script>
 
